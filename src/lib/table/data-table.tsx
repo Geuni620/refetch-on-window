@@ -24,7 +24,7 @@ type DataTableProps<TData, TValue> = {
   total: number;
   pagination: Pagination;
   onPaginationChange: OnChangeFn<PaginationState>;
-  isLoading: boolean;
+  isLoading?: boolean;
 };
 
 export const DataTable = <TData, TValue>({

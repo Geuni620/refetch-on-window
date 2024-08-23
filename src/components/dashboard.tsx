@@ -1,32 +1,48 @@
-import { useDebounce } from '@uidotdev/usehooks';
-
 import { DropDownMenu } from '@/components/dropdown';
 import { Package2Icon } from '@/components/icons';
 import { PageSize } from '@/components/pageSize';
-import { Search } from '@/components/search';
 
 import { useLogin } from '@/hooks/useLogin';
 import { usePagination } from '@/hooks/usePagination';
-import { useSearchCondition } from '@/hooks/useSearchCondition';
-import { useTaskGetQuery } from '@/hooks/useTaskGetQuery';
+
 import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 import { DialogComponents as Dialog } from '@/components/dialog';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/utils/supabase';
+import type { TaskProps } from '@/hooks/useTaskGetQuery';
 
 export function Dashboard() {
   const { onLogoutClick } = useLogin();
   const { pagination, onPaginationChange, onPageSizeChange } = usePagination();
-  const { search, onSearchChange } = useSearchCondition();
-  const debouncedSearch = useDebounce(search, 300);
+  const [tasks, setTasks] = useState<TaskProps[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
 
-  const tasks = useTaskGetQuery({
-    page: pagination.pageIndex,
-    size: pagination.pageSize,
-    search: debouncedSearch,
-  });
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const { pageIndex, pageSize } = pagination;
+      const start = pageIndex * pageSize;
+      const end = start + pageSize - 1;
 
-  console.log('task isLoading', tasks.isLoading);
-  console.log('task isFetching', tasks.isFetching);
+      const { data, count, error } = await supabase
+        .from('tasks_rls')
+        .select('*', { count: 'exact' })
+        .order('id', { ascending: true })
+        .range(start, end);
+
+      if (error) {
+        console.error('Error fetching tasks:', error);
+        return;
+      }
+
+      console.log('coutb', count);
+
+      setTasks(data);
+      setTotalCount(count ?? 0);
+    };
+
+    fetchTasks();
+  }, [pagination.pageIndex, pagination.pageSize]);
 
   return (
     <div className="flex flex-col">
@@ -40,7 +56,6 @@ export function Dashboard() {
         </div>
 
         <div className="flex flex-1 items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <Search search={search} onSearchChange={onSearchChange} />
           <PageSize
             pageSize={pagination.pageSize}
             onPageSizeChange={onPageSizeChange}
@@ -52,12 +67,11 @@ export function Dashboard() {
         <div className="rounded-lg border p-2 shadow-sm">
           <Dialog />
           <DataTable
-            data={tasks?.data?.result || []}
-            total={tasks?.data?.count ?? 0}
+            data={tasks || []}
+            total={totalCount ?? 0}
             columns={columns}
             pagination={pagination}
             onPaginationChange={onPaginationChange}
-            isLoading={tasks.isLoading}
           />
         </div>
       </main>
