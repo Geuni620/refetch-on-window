@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { type TaskProps } from '@/hooks/useTaskGetQuery';
 import { useTaskDeleteMutation } from '@/hooks/useTaskDeleteMutation';
+import { useState } from 'react';
 
 export const columns: ColumnDef<TaskProps>[] = [
   {
@@ -39,13 +40,21 @@ export const columns: ColumnDef<TaskProps>[] = [
     accessorKey: 'task',
     header: 'Task',
     cell: ({ row }) => {
-      return <div>{row.getValue('task')}</div>;
+      const [isModalOpen, setIsModalOpen] = useState(false);
+
+      const toggleModal = () => {
+        setIsModalOpen((prev) => !prev);
+      };
+
+      return <div onClick={toggleModal}>{row.getValue('task')}</div>;
     },
   },
   {
     accessorKey: 'notes',
     header: 'Notes',
-    cell: ({ row }) => <p>{row.getValue('notes')}</p>,
+    cell: ({ row }) => {
+      return <p>{row.getValue('notes')}</p>;
+    },
   },
   {
     accessorKey: 'statusName',
