@@ -2,7 +2,7 @@ import camelcaseKeys from 'camelcase-keys';
 import { useEffect, useState } from 'react';
 
 import { DialogComponents as Dialog } from '@/components/dialog';
-import { Package2Icon } from '@/components/icons';
+
 import { useLogin } from '@/hooks/useLogin';
 import { usePagination } from '@/hooks/usePagination';
 import type { TaskProps } from '@/hooks/useTaskGetQuery';
@@ -45,7 +45,7 @@ export function Dashboard() {
     <div className="flex flex-col">
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
         <div className="rounded-lg border p-2 shadow-sm">
-          <Dialog userId={userId} rowSelection={rowSelection} />
+          <Dialog />
           <DataTable
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}

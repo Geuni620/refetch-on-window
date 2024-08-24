@@ -67,22 +67,19 @@ export const columns: ColumnDef<TaskProps>[] = [
     header: '상태',
     cell: ({ row }) => {
       const status = row.getValue('statusName');
+      const isAssigned = status === 'assigned';
 
-      if (status === 'assigned') {
-        return (
-          <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
-            할당
-          </span>
-        );
-      } else if (status === 'unassigned') {
-        return (
-          <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">
-            미할당
-          </span>
-        );
-      }
-
-      return null;
+      return (
+        <span
+          className={`rounded-full px-2 py-1 text-center text-xs font-semibold ${
+            isAssigned
+              ? 'bg-green-100 text-green-800'
+              : 'bg-red-100 text-red-800'
+          }`}
+        >
+          {isAssigned ? '할당' : '미할당'}
+        </span>
+      );
     },
   },
 ];
