@@ -34,6 +34,11 @@ export const columns: ColumnDef<TaskProps>[] = [
     ),
   },
   {
+    accessorKey: 'id',
+    header: 'ID',
+    cell: ({ row }) => <div>{row.original.id}</div>,
+  },
+  {
     accessorKey: 'task',
     header: '작업',
     cell: ({ row }) => {
