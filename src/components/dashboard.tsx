@@ -9,6 +9,7 @@ import type { TaskProps } from '@/hooks/useTaskGetQuery';
 import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 import { supabase } from '@/utils/supabase';
+import type { RowSelectionState, Updater } from '@tanstack/react-table';
 
 export function Dashboard() {
   const { session } = useLogin();
@@ -16,7 +17,11 @@ export function Dashboard() {
   const { pagination, onPaginationChange } = usePagination();
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  const onRowSelectionChange = (updater: Updater<RowSelectionState>) => {
+    setRowSelection(updater);
+  };
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -48,7 +53,7 @@ export function Dashboard() {
           <Dialog />
           <DataTable
             rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
+            onRowSelectionChange={onRowSelectionChange}
             data={tasks || []}
             total={totalCount ?? 0}
             columns={columns}

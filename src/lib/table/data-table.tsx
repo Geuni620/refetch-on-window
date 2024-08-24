@@ -5,6 +5,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { type PaginationState } from '@tanstack/react-table';
+import type { RowSelectionState, Updater } from '@tanstack/react-table';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -26,7 +27,7 @@ type DataTableProps<TData, TValue> = {
   onPaginationChange: OnChangeFn<PaginationState>;
   isLoading?: boolean;
   rowSelection?: Record<string, boolean>;
-  setRowSelection?: any;
+  onRowSelectionChange: (updater: Updater<RowSelectionState>) => void;
 };
 
 export const DataTable = <TData, TValue>({
@@ -37,9 +38,8 @@ export const DataTable = <TData, TValue>({
   onPaginationChange,
   isLoading,
   rowSelection,
-  setRowSelection,
+  onRowSelectionChange,
 }: DataTableProps<TData, TValue>) => {
-  console.log('data', data);
   const table = useReactTable({
     data,
     columns,
@@ -50,7 +50,7 @@ export const DataTable = <TData, TValue>({
 
     onPaginationChange,
     state: { pagination, rowSelection },
-    onRowSelectionChange: setRowSelection,
+    onRowSelectionChange,
   });
 
   if (isLoading) {
