@@ -1,23 +1,22 @@
+import type { RowSelectionState, Updater } from '@tanstack/react-table';
 import camelcaseKeys from 'camelcase-keys';
 import { useEffect, useState } from 'react';
 
-import { useLogin } from '@/hooks/useLogin';
+import { StatusChangeConfirmModal } from '@/components/StatusChangeConfirmModal';
+import { Button } from '@/components/ui/button';
 import { usePagination } from '@/hooks/usePagination';
 import type { TaskProps } from '@/hooks/useTaskGetQuery';
 import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 import { supabase } from '@/utils/supabase';
-import type { RowSelectionState, Updater } from '@tanstack/react-table';
-import { Button } from '@/components/ui/button';
 
 export function Dashboard() {
-  const { session } = useLogin();
-  const userId = session?.user.id;
   const { pagination, onPaginationChange } = usePagination();
   const [tasks, setTasks] = useState<TaskProps[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const onRowSelectionChange = (updater: Updater<RowSelectionState>) => {
     setRowSelection(updater);
@@ -47,6 +46,7 @@ export function Dashboard() {
           return updatedTask ? { ...task, ...updatedTask } : task;
         }),
       );
+      setRowSelection({});
 
       console.log(`Successfully updated ${data.length} tasks.`);
     } catch (error) {
@@ -57,27 +57,40 @@ export function Dashboard() {
   };
 
   useEffect(() => {
+    /**
+     * @fixme 블로그 글 읽고 수정할 것
+     */
     let ignore = false;
+
     const fetchTasks = async () => {
       const start = pagination.pageIndex * pagination.pageSize;
       const end = start + pagination.pageSize - 1;
 
-      const { data, count, error } = await supabase
-        .from('tasks_rls')
-        .select('*', { count: 'exact' })
-        .order('id', { ascending: true })
-        .range(start, end);
+      try {
+        const { data, count, error } = await supabase
+          .from('tasks_rls')
+          .select('*', { count: 'exact' })
+          .order('id', { ascending: true })
+          .range(start, end);
 
-      if (error) {
+        if (error) {
+          console.error('Error fetching tasks:', error);
+          return;
+        }
+
+        if (!ignore) {
+          setTasks(camelcaseKeys(data, { deep: true }));
+          setTotalCount(count ?? 0);
+        }
+      } catch (error) {
         console.error('Error fetching tasks:', error);
-        return;
       }
-
-      setTasks(camelcaseKeys(data, { deep: true }));
-      setTotalCount(count ?? 0);
     };
 
     fetchTasks();
+    return () => {
+      ignore = true;
+    };
   }, [pagination.pageIndex, pagination.pageSize, isUpdating]);
 
   return (
@@ -92,6 +105,14 @@ export function Dashboard() {
             >
               할당
             </Button>
+
+            <Button
+              onClick={() => {
+                setIsModalOpen((prev) => !prev);
+              }}
+            >
+              확인
+            </Button>
           </div>
           <DataTable
             rowSelection={rowSelection}
@@ -102,6 +123,16 @@ export function Dashboard() {
             pagination={pagination}
             onPaginationChange={onPaginationChange}
           />
+
+          {isModalOpen && (
+            <StatusChangeConfirmModal
+              id={Object.keys(rowSelection).at(0) || ''}
+              isOpen={isModalOpen}
+              onClose={() => {
+                setIsModalOpen(false);
+              }}
+            />
+          )}
         </div>
       </main>
     </div>

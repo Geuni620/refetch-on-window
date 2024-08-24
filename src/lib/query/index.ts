@@ -29,4 +29,10 @@ export const createQueryClient = new QueryClient({
       queryErrorHandler(error);
     },
   }),
+
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
 });

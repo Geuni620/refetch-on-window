@@ -1,15 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { useState } from 'react';
-
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import { type TaskProps } from '@/hooks/useTaskGetQuery';
 
 export const columns: ColumnDef<TaskProps>[] = [
@@ -34,37 +24,10 @@ export const columns: ColumnDef<TaskProps>[] = [
     ),
   },
   {
-    accessorKey: 'id',
-    header: 'ID',
-    cell: ({ row }) => <div>{row.original.id}</div>,
-  },
-  {
     accessorKey: 'task',
     header: '작업',
     cell: ({ row }) => {
-      const TaskCell = () => {
-        const [isOpen, setIsOpen] = useState(false);
-        return (
-          <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="link"
-                className="h-auto p-0 font-normal text-blue-500 underline hover:text-blue-700"
-              >
-                {row.getValue('task')}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{row.getValue('task')}</DialogTitle>
-              </DialogHeader>
-              <p>상태: {row.getValue('statusName')}</p>
-            </DialogContent>
-          </Dialog>
-        );
-      };
-
-      return <TaskCell />;
+      return row.getValue('task');
     },
   },
   {
