@@ -1,3 +1,5 @@
+import { FormEvent } from 'react';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,8 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useAssignMutation } from '@/hooks/useAssignMutation';
 import { useForm } from '@/hooks/useForm';
-import { FormEvent } from 'react';
 import { useTaskPostMutation } from '@/hooks/useTaskPostMutation';
 import { TASK_STATUS } from '@/hooks/useTaskPostMutation';
 
@@ -27,8 +29,14 @@ const initialFormValues = {
   taskStatus: '',
 };
 
-export const DialogComponents = () => {
+type Props = {
+  userId: string | undefined;
+  rowSelection: Record<string, boolean>;
+};
+
+export const DialogComponents: React.FC<Props> = ({ rowSelection, userId }) => {
   const addTask = useTaskPostMutation();
+  const assignMutation = useAssignMutation();
 
   const { formValues, handleChange, handleSelectChange, resetForm } =
     useForm(initialFormValues);
@@ -41,10 +49,10 @@ export const DialogComponents = () => {
   };
 
   return (
-    <div className="flex w-full justify-end">
+    <div className="flex w-full items-center justify-end gap-2">
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="mx-0 my-2">Add Task</Button>
+          <Button className="mx-0 my-2">추가</Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
@@ -103,6 +111,17 @@ export const DialogComponents = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <Button
+        onClick={() =>
+          assignMutation.mutate({
+            id: Object.keys(rowSelection),
+            userId: userId,
+          })
+        }
+      >
+        할당
+      </Button>
     </div>
   );
 };

@@ -1,8 +1,8 @@
 import { Session } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/utils/supabase';
-import { useNavigate } from 'react-router-dom';
 
 const PROVIDER = 'github';
 

@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-table';
 import { type PaginationState } from '@tanstack/react-table';
 
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -16,7 +17,6 @@ import {
 } from '@/components/ui/table';
 import { type OnChangeFn, type Pagination } from '@/hooks/usePagination';
 import { DataTablePagination } from '@/lib/table/data-table-pagination';
-import { Skeleton } from '@/components/ui/skeleton';
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -25,6 +25,8 @@ type DataTableProps<TData, TValue> = {
   pagination: Pagination;
   onPaginationChange: OnChangeFn<PaginationState>;
   isLoading?: boolean;
+  rowSelection?: Record<string, boolean>;
+  setRowSelection?: any;
 };
 
 export const DataTable = <TData, TValue>({
@@ -34,15 +36,21 @@ export const DataTable = <TData, TValue>({
   pagination,
   onPaginationChange,
   isLoading,
+  rowSelection,
+  setRowSelection,
 }: DataTableProps<TData, TValue>) => {
+  console.log('data', data);
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     rowCount: total,
+    getRowId: (row) => row.id,
+
     onPaginationChange,
-    state: { pagination },
+    state: { pagination, rowSelection },
+    onRowSelectionChange: setRowSelection,
   });
 
   if (isLoading) {

@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/utils/supabase';
 import { toast } from 'sonner';
 
-import { taskKeys, TASK } from '@/hooks/queryKey';
+import { TASK, taskKeys } from '@/hooks/queryKey';
+import { supabase } from '@/utils/supabase';
 
 const deleteTask = async (id: string) => {
   const { error } = await supabase.from(TASK).delete().eq('id', id);

@@ -1,19 +1,16 @@
 import { type ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { type TaskProps } from '@/hooks/useTaskGetQuery';
-import { useTaskDeleteMutation } from '@/hooks/useTaskDeleteMutation';
-import { useState } from 'react';
 
 export const columns: ColumnDef<TaskProps>[] = [
   {
@@ -25,70 +22,67 @@ export const columns: ColumnDef<TaskProps>[] = [
           (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
+        aria-label="전체 선택"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
+        aria-label="행 선택"
       />
     ),
   },
   {
     accessorKey: 'task',
-    header: 'Task',
+    header: '작업',
     cell: ({ row }) => {
-      const [isModalOpen, setIsModalOpen] = useState(false);
-
-      const toggleModal = () => {
-        setIsModalOpen((prev) => !prev);
+      const TaskCell = () => {
+        const [isOpen, setIsOpen] = useState(false);
+        return (
+          <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="link"
+                className="h-auto p-0 font-normal text-blue-500 underline hover:text-blue-700"
+              >
+                {row.getValue('task')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{row.getValue('task')}</DialogTitle>
+              </DialogHeader>
+              <p>상태: {row.getValue('statusName')}</p>
+            </DialogContent>
+          </Dialog>
+        );
       };
 
-      return <div onClick={toggleModal}>{row.getValue('task')}</div>;
-    },
-  },
-  {
-    accessorKey: 'notes',
-    header: 'Notes',
-    cell: ({ row }) => {
-      return <p>{row.getValue('notes')}</p>;
+      return <TaskCell />;
     },
   },
   {
     accessorKey: 'statusName',
-    header: 'Status',
-    cell: ({ row }) => <p>{row.getValue('statusName')}</p>,
-  },
-  {
-    id: 'actions',
+    header: '상태',
     cell: ({ row }) => {
-      const selectedTask = row.original;
-      const deleteMutation = useTaskDeleteMutation();
+      const status = row.getValue('statusName');
 
-      const onDelete = ({ id }: { id: string }) => {
-        deleteMutation.mutate(id);
-      };
+      if (status === 'assigned') {
+        return (
+          <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-semibold text-green-800">
+            할당
+          </span>
+        );
+      } else if (status === 'unassigned') {
+        return (
+          <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-semibold text-red-800">
+            미할당
+          </span>
+        );
+      }
 
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="size-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDelete({ id: selectedTask.id })}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return null;
     },
   },
 ];

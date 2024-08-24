@@ -4,8 +4,8 @@ import {
   useQuery,
 } from '@tanstack/react-query';
 import camelcaseKeys from 'camelcase-keys';
-import { taskKeys, TASK } from '@/hooks/queryKey';
 
+import { TASK, taskKeys } from '@/hooks/queryKey';
 import { supabase } from '@/utils/supabase';
 
 export type TaskProps = {

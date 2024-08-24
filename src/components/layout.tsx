@@ -1,10 +1,8 @@
 import { Outlet } from 'react-router-dom';
-import { SideBar } from 'src/components/sidebar';
 
 export const Layout = () => {
   return (
-    <div className="grid min-h-screen w-full overflow-hidden lg:grid-cols-[280px_1fr]">
-      <SideBar />
+    <div className="mx-auto min-h-screen w-[1200px] overflow-hidden p-[10rem] lg:grid-cols-[280px_1fr]">
       <Outlet />
     </div>
   );
