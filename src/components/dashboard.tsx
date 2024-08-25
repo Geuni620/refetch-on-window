@@ -18,6 +18,10 @@ export function Dashboard() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const resetRowSelection = () => {
+    setRowSelection({});
+  };
+
   const onRowSelectionChange = (updater: Updater<RowSelectionState>) => {
     setRowSelection(updater);
   };
@@ -130,6 +134,7 @@ export function Dashboard() {
               isOpen={isModalOpen}
               onClose={() => {
                 setIsModalOpen(false);
+                resetRowSelection();
               }}
             />
           )}
