@@ -9,6 +9,7 @@ import type { TaskProps } from '@/hooks/useTaskGetQuery';
 import { columns } from '@/lib/table/columns';
 import { DataTable } from '@/lib/table/data-table';
 import { supabase } from '@/utils/supabase';
+import { useGetAssignedStatus } from '@/hooks/useGetAssignedStatus';
 
 export function Dashboard() {
   const { pagination, onPaginationChange } = usePagination();
@@ -17,6 +18,9 @@ export function Dashboard() {
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [isUpdating, setIsUpdating] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const status = useGetAssignedStatus({ id: selectedId });
 
   const resetRowSelection = () => {
     setRowSelection({});
@@ -61,9 +65,6 @@ export function Dashboard() {
   };
 
   useEffect(() => {
-    /**
-     * @fixme 블로그 글 읽고 수정할 것
-     */
     let ignore = false;
 
     const fetchTasks = async () => {
@@ -97,49 +98,52 @@ export function Dashboard() {
     };
   }, [pagination.pageIndex, pagination.pageSize, isUpdating]);
 
+  useEffect(() => {
+    const selectedId = Object.keys(rowSelection).at(0);
+    if (selectedId) {
+      setSelectedId(selectedId);
+    }
+  });
+
   return (
-    <div className="flex flex-col">
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-        <div className="rounded-lg border p-2 shadow-sm">
-          <div className="flex w-full items-center justify-end gap-2 p-2">
-            <Button
-              onClick={() => {
-                onAssignStatusChange(Object.keys(rowSelection), 'assigned');
-              }}
-            >
-              할당
-            </Button>
+    <div className="rounded-lg border p-2 shadow-sm">
+      <div className="flex w-full items-center justify-end gap-2 p-2">
+        <Button
+          onClick={() => {
+            onAssignStatusChange(Object.keys(rowSelection), 'assigned');
+          }}
+        >
+          할당
+        </Button>
 
-            <Button
-              onClick={() => {
-                setIsModalOpen((prev) => !prev);
-              }}
-            >
-              확인
-            </Button>
-          </div>
-          <DataTable
-            rowSelection={rowSelection}
-            onRowSelectionChange={onRowSelectionChange}
-            data={tasks || []}
-            total={totalCount ?? 0}
-            columns={columns}
-            pagination={pagination}
-            onPaginationChange={onPaginationChange}
-          />
+        <Button
+          onClick={() => {
+            setIsModalOpen((prev) => !prev);
+          }}
+        >
+          확인
+        </Button>
+      </div>
+      <DataTable
+        rowSelection={rowSelection}
+        onRowSelectionChange={onRowSelectionChange}
+        data={tasks || []}
+        total={totalCount ?? 0}
+        columns={columns}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+      />
 
-          {isModalOpen && (
-            <StatusChangeConfirmModal
-              id={Object.keys(rowSelection).at(0) || ''}
-              isOpen={isModalOpen}
-              onClose={() => {
-                setIsModalOpen(false);
-                resetRowSelection();
-              }}
-            />
-          )}
-        </div>
-      </main>
+      {isModalOpen && status.isLoading === false && (
+        <StatusChangeConfirmModal
+          id={selectedId ?? ''}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            resetRowSelection();
+          }}
+        />
+      )}
     </div>
   );
 }

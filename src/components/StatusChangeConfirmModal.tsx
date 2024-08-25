@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useGetAssignedStatus } from '@/hooks/useGetAssignedStatus';
 
 type StatusChangeConfirmModalProps = {
   id: string;
@@ -18,11 +17,7 @@ type StatusChangeConfirmModalProps = {
 export const StatusChangeConfirmModal: React.FC<
   StatusChangeConfirmModalProps
 > = ({ id, isOpen, onClose }) => {
-  const status = useGetAssignedStatus({ id });
   const isAssigned = status.data?.status_name === 'assigned';
-
-  console.log('isLoading', status.isLoading);
-  console.log('isFetching', status.isFetching);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
